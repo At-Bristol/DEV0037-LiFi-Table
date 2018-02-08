@@ -1,18 +1,18 @@
 import { setTimeout } from "timers";
-import connStatus from '../index'
+import store from '../index'
 import config from '../config'
 
 const startCheckingConnection = () => {
 
-  const remoteServer = config.remoteServer || 'http://localhost:3001/';
+  const lifiServer = config.lifiServer || 'http://localhost:3001/';
 
   const checkConnection = () => {
     setTimeout(() => {
-      fetch(remoteServer)
-       .then(res => connStatus.dispatch( true ))
+      fetch(lifiServer)
+       .then(res => store.dispatch({isConnected: true}))
        .then(() => checkConnection())
        .catch(err => { 
-         connStatus.dispatch(false)
+         store.dispatch({isConnected: false})
          checkConnection()
         })
     },1000)

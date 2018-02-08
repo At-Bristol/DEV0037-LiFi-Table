@@ -9,7 +9,7 @@
     "kill": "sh scripts/kill.sh 10.72.0.250 deskNotSecured",
     "ledTest": "node ledTest/index.js",
     "deploy": "sh scripts/deploy.sh 10.72.0.250 3000 pi deskNotSecured",
-    "prod": "node dist/index.js",
+    "prod": "node server/index.js",
     "start": "webpack-dev-server --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "transmit": "node transmitter/index.js -f",
@@ -19,6 +19,7 @@
   "author": "Seamus Foley",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "dat.gui": "^0.7.0",
     "express": "^4.16.2",
     "express-ws": "^3.0.0",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "clean-webpack-plugin": "^0.1.17",
     "css-loader": "^0.28.9",

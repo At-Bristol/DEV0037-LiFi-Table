@@ -7,9 +7,9 @@ import simFragmentShader from './shaders/simFragmentShader.fs'
 import particleShaderMaterial from './materials/particleShaderMaterial'
 import createDefaultScene from './lib/createDefaultScene'
 import startCheckingConnection from './lib/networkConnection'
-import createConnStatus from './connStatus'
+import createStore from './createStore'
 import createTable from './createTable'
-import gui from './gui'
+import createGui from './gui'
 
 import tableModel from './models/table.json'
 import foyerEnv from './env/foyer/foyer.js'
@@ -19,7 +19,7 @@ if(process.env.NODE_ENV !== 'production'){
   console.log('Not running in production mode')
 }
 
-let connStatus
+let store = createStore()
 
 const main = ({
   tableWidth = 300,
@@ -31,8 +31,6 @@ const main = ({
 }) => {
 
   const table = createTable(config.hRes, config.vRes)
-
-  const connStatus = createConnStatus()
 
   if(process.env.NETWORK === true) startCheckingConnection()
 
@@ -88,7 +86,7 @@ const main = ({
     //fftTex.needsUpdate = true
     //fftTex.image.data = generateData(1, 64)
     //update
-    particleTexture.uniforms.u_isConnected.value = connStatus.getState().isConnected ? 1.0 : 1.0; 
+    particleTexture.uniforms.u_isConnected.value = store.getState().isConnected ? 1.0 : 1.0; 
     particleTexture.uniforms.u_time.value += clock.getDelta(); 
     //render
     renderer.render(
@@ -115,9 +113,11 @@ const main = ({
   };
 
   loop();
+
+  //createGui(store)
 };
 
 main(config)
 
-export default connStatus
+export default store
 
