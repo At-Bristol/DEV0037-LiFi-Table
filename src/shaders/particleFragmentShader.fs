@@ -21,7 +21,7 @@ void main() {
   vec4 finalColour = vec4(0.0, 0.0, 0.0, 0.0);
 
   finalColour.r = vUvm.t * (posSample.r*5.0);
-  finalColour.g = 0.5;//(1.0/sin(vUvm.s))-0.0;
+  finalColour.g = 0.5;
   finalColour.b = posSample.r;
   //finalColour.a = (0.2*posSample.r)+0.01;
 

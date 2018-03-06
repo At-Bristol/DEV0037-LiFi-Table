@@ -2,72 +2,57 @@ import style from './css/main.css'
 
 import * as THREE from 'three'
 import OrbitControls from './lib/OrbitControls'
-import renderToTexture from './lib/renderToTexture'
-import simFragmentShader from './shaders/simFragmentShader.fs'
+
+import particleTexture from './textures/particleTexture'
+import wolfensteinTexture from './textures/wolfensteinTexture'
+
+import createPostProcessTexture from './textures/postProcessTexture'
 import particleShaderMaterial from './materials/particleShaderMaterial'
 import createDefaultScene from './lib/createDefaultScene'
-import startCheckingConnection from './lib/networkConnection'
-import createStore from './createStore'
+import array2Color from './lib/array2Color'
 import createTable from './createTable'
 import createGui from './gui'
-
 import tableModel from './models/table.json'
 import foyerEnv from './env/foyer/foyer.js'
 import config from './config'
+
 
 if(process.env.NODE_ENV !== 'production'){
   console.log('Not running in production mode')
 }
 
-let store = createStore()
+const main = (props) => {
 
-const main = ({
-  tableWidth = 300,
-  tableLength = 600,
-  hRes = 50,
-  vRes = 50,
-  background = false,
-  ledSize = 2.0
-}) => {
+  const {tableWidth,tableLength, uRes, vRes, background,ledSize } = props
 
-  const table = createTable(config.hRes, config.vRes)
+  const inputTexture = particleTexture
 
-  if(process.env.NETWORK === true) startCheckingConnection()
-
+  const table = createTable(uRes, vRes)
   const clock = new THREE.Clock()
-
   const renderer = new THREE.WebGLRenderer()
+
   renderer.setSize(window.innerWidth, window.innerHeight)
   document.body.appendChild(renderer.domElement)
 
-  const particleTexture = renderToTexture({
-    uniforms: {
-      u_time: {type: "f", value: 0.0},
-      u_width: {type: "i", value: hRes},
-      u_height: {type: "i", value: vRes},
-      u_isConnected: {type: "f", value: 1.0}
-    },
-    fragmentShader: simFragmentShader
-  });
-
   const defaultScene = createDefaultScene({domElement: renderer.domElement})
 
+  const postProcessTexture = createPostProcessTexture(inputTexture.texture)
+  
   //preview plane
-  const previewPlaneMaterial = new THREE.MeshBasicMaterial({map: particleTexture.texture.texture});
-  //const previewPlaneGeo = new THREE.PlaneBufferGeometry(tableLength, tableWidth, 1, 1);
+  const previewPlaneMaterial = new THREE.MeshBasicMaterial({map:postProcessTexture.texture.texture});
   const previewPlaneGeo = new THREE.PlaneBufferGeometry(tableLength, tableWidth, 1, 1);
   const previewPlane = new THREE.Mesh(previewPlaneGeo, previewPlaneMaterial);
   previewPlane.rotation.x = -90 * (3.14/180);
+  
   // point particles geometry
-
-  const particlePlaneGeo = new THREE.PlaneBufferGeometry(tableLength, tableWidth, hRes, vRes);
+  const particlePlaneGeo = new THREE.PlaneBufferGeometry(tableLength, tableWidth, uRes, vRes);
   const particles = new THREE.Points(
     particlePlaneGeo, 
     particleShaderMaterial({
       uniforms:{
         uColor1: { type: "v3", value: new THREE.Vector3(1.0, 1.0, 1.0) },
-        colorTex: { type: "t", value: particleTexture },
-        u_pointSize: {type: "f", value: config.ledSize},
+        colorTex: { type: "t", value: 1, texture: postProcessTexture.texture.texture },
+        u_pointSize: {type: "f", value: ledSize},
       }
     })
   );
@@ -76,34 +61,50 @@ const main = ({
   particles.rotation.y = 3.14
   particles.rotation.z = 3.14
 
-  if(config.background) defaultScene.scene.background = foyerEnv
+  if(background) defaultScene.scene.background = foyerEnv
   defaultScene.scene.add(previewPlane)
   defaultScene.scene.add(particles)
 
-  const outputTex = new Uint8Array( hRes * vRes * 4 )
+  const outputTex = new Uint8Array( uRes * vRes * 4 )
   
   const render = () => {
-    //fftTex.needsUpdate = true
-    //fftTex.image.data = generateData(1, 64)
-    //update
-    particleTexture.uniforms.u_isConnected.value = store.getState().isConnected ? 1.0 : 1.0; 
-    particleTexture.uniforms.u_time.value += clock.getDelta(); 
+
+    const state = store.getState()
+
+    inputTexture.uniforms.u_isConnected.value = store.isConnected ? 1.0 : 1.0
+    inputTexture.uniforms.u_time.value += clock.getDelta()
+    inputTexture.uniforms.u_scaleU.value = state.scaleU
+    inputTexture.uniforms.u_scaleV.value = state.scaleV
+    inputTexture.uniforms.u_speed.value = state.speed
+    inputTexture.uniforms.u_reverse.value = state.reverse ? 1 : -1
+    inputTexture.uniforms.u_color1Start.value = array2Color(state.color1Start)
+    inputTexture.uniforms.u_color1End.value = array2Color(state.color1End)
+    inputTexture.uniforms.u_color1Speed.value = state.color1Speed;
+    inputTexture.uniforms.u_color2Start.value = array2Color(state.color2Start)
+    inputTexture.uniforms.u_color2End.value = array2Color(state.color2End)
+    inputTexture.uniforms.u_color2Speed.value = state.color2Speed
     //render
     renderer.render(
-      particleTexture.scene, 
-      particleTexture.camera, 
-      particleTexture.texture
+      inputTexture.scene, 
+      inputTexture.camera, 
+      inputTexture.texture
+    );
+
+    renderer.render(
+      postProcessTexture.scene, 
+      postProcessTexture.camera, 
+      postProcessTexture.texture
     );
     //render output to array
    renderer.readRenderTargetPixels(
-      particleTexture.texture, 
-      0, 0, hRes, vRes, 
+      postProcessTexture.texture, 
+      0, 0, uRes, vRes, 
       outputTex )
     table.render(outputTex)
     //renderToScreen
     renderer.render(
       defaultScene.scene, 
-      defaultScene.camera
+      defaultScene.camera,
     );
   };
   
@@ -113,11 +114,8 @@ const main = ({
   };
 
   loop();
-
-  //createGui(store)
 };
 
-main(config)
+main(store.getState())
 
-export default store
 

@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const webpack = require('webpack')
 require("babel-polyfill")
 
 
@@ -11,6 +12,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'LiFi Table preview'
     }),
+    new webpack.ProvidePlugin({
+      store: [path.resolve(__dirname, './src/store'), 'store'],
+      config: [path.resolve(__dirname, './src/config'), 'config']
+    })
   ],
   module: {
     rules: [

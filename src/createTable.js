@@ -1,10 +1,7 @@
 import { setInterval } from "timers";
-import store from './index';
 
-const createTable = ({
-  hRes = 8,
-  vRes = 5
-}) => {
+const createTable = (props) => {
+  const {uRes, vRes} = props
   let NUM_LEDS, pixelData, ws281x, ws;
 
   const rgb2Int = (r, g, b) => (
@@ -12,27 +9,29 @@ const createTable = ({
   );
 
   const init = () => {
-    const NUM_LEDS = hRes * vRes
-    pixelData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    ws = new WebSocket("ws://10.72.0.250:3000/render");
+    const NUM_LEDS = 36 * 98
+    ws = new WebSocket(`ws://${config.renderer}/render`);
     //ws.onmessage = e => console.log(e.data)
     ws.onopen = e => {
-      store.dispatch({isConnectedToRenderer: true})
+      //store.dispatch({isRendererConnected: true, msg:''})
       console.log('Connected to renderer')
     }
 
     ws.onclose = e =>  {
       console.warn('Connection to renderer closed, Attempting to restablish connection')
-      store.dispatch({isConnectedToRenderer: false})
+      //store.dispatch({isRendererConnected: false})
       reconnect()
     }
 
-    ws.onerror = e => console.log(e)
+    ws.onerror = e => {
+      return undefined
+    }
   }
   init();
 
   const reconnect = e => {
     ws = null
+    //store.dispatch({msg: 'Attempting to connect to renderer'})
     setTimeout(e => init(), 1000)
   }
 
@@ -40,7 +39,7 @@ const createTable = ({
     if(ws && ws.readyState === 1){
       let holdingData = []
       let i
-      for(i = 0; i < pixelData.length; i++) {
+      for(i = 0; i < data.length/4; i++) {
         let offset = i*4
         holdingData[i] = rgb2Int(
           data[offset],
@@ -48,8 +47,8 @@ const createTable = ({
           data[offset + 2],
         )
       }
-
-      ws.send(pixelData.map(e => holdingData))
+     
+      ws.send(holdingData)
     }
   }
 

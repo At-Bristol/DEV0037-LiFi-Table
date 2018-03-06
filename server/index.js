@@ -1,13 +1,29 @@
-require('./exit')
 const express = require('express')
 const app = express()
 const path = require('path')
 const expressWs = require('express-ws')(app)
-const bodyParser = require('body-parser');
-
+const bodyParser = require('body-parser')
 const renderer = require('./renderer')()
+const ws281x = require('rpi-ws281x-native');
 
-let frame = 0
+process.on('SIGINT', () => {
+  console.log('Closing')
+  ws281x.reset();
+  process.nextTick(() => process.exit())
+})
+
+process.on('uncaughtException', () => {
+  console.log('Closing due to uncaught exception')
+  ws281x.reset();
+  process.nextTick(() => process.exit())
+})
+
+process.on('exit', (code) => {
+  ws281x.reset();
+  console.log(`About to exit with code: ${code}`);
+});
+
+const parentDir = __dirname.substring(0, __dirname.lastIndexOf('/'))
 
 app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -17,24 +33,32 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(express.static(path.join(parentDir, '/dist')))
+
+app.get('/', (req, res) => res.sendFile(path.join(parentDir, '/dist/index.html')))
+
 app.get('/init', (req, res) => res.send('init'))
 app.post('/init', (req, res) => {
-  renderer.init(
-    req.body.NUM_LEDS,
-    res.send(req.body)
-  )
+  renderer.init(req.body, res.send('init renderer'))
 })
 
 app.get('/stop', (req, res) => {
   renderer.stop(res.send('stopped rendered'))
 })
 
-app.ws('/render', (ws, req) => {
-  ws.on('message', msg => renderer.render(msg.split(',')) )
+app.post('/save', (req, res) => {
+  console.log(req.body)
+  storage.write(req.body, res.send(`saved ${req.body}`))
 })
 
-app.use(express.static('dist'))
+app.get('/load', (req, res) => {
+  res.send(storage.read())
+})
 
-app.listen(3000, () => console.log('App listening on port 3000'))
+app.ws('/render', (ws, req) => {
+  ws.on('message', data => renderer.render(data) )
+})
+
+app.listen(3000, () => console.log('Lifi table listening on port 3000'))
 
 

@@ -1,10 +1,8 @@
 import { setTimeout } from "timers";
-import store from '../index'
-import config from '../config'
 
 const startCheckingConnection = () => {
 
-  const lifiServer = config.lifiServer || 'http://localhost:3001/';
+  const lifiServer = `http://${config.lifiServer}/` || 'http://localhost:3001/';
 
   const checkConnection = () => {
     setTimeout(() => {

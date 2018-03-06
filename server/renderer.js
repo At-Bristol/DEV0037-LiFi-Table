@@ -1,68 +1,62 @@
-var ws281x = require('rpi-ws281x-native');
+const ws281x = require('rpi-ws281x-native');
+const utils = require('./lib/utils');
+const createSurfaceMap = require('./lib/mapping')
+const createRainbow = require('./shaders/rainbow')
+const config = {
+  clamp:100
+}
+
+let pixelData
+let isStopped = false
+let map
 
 const createRenderer = () => {
 
-  var NUM_LEDS = parseInt(process.argv[2], 10) || 5*8,
+  var NUM_LEDS = parseInt(process.argv[2], 10) || 36*98,
     pixelData = new Uint32Array(NUM_LEDS);
 
-    for (var i = 0; i < NUM_LEDS; i++) {
-      pixelData[i] = rgb2Int(255,0,0);
-    }
+  let rainbow;
 
-  ws281x.init(NUM_LEDS);
+  //var offset = 0;
 
-
-  // ---- animation-loop
-  var offset = 0;
-
-
-  console.log('Press <ctrl>+C to exit.');
-
-  // rainbow-colors, taken from http://goo.gl/Cs3H0v
-  function colorwheel(pos) {
-    pos = 255 - pos;
-    if (pos < 85) { return rgb2Int(255 - pos * 3, 0, pos * 3); }
-    else if (pos < 170) { pos -= 85; return rgb2Int(0, pos * 3, 255 - pos * 3); }
-    else { pos -= 170; return rgb2Int(pos * 3, 255 - pos * 3, 0); }
-  }
-
-  function rgb2Int(r, g, b) {
-    return ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff);
-  }
-
-
-  /*const init = (
-    NUM_LEDS = 5*8,
-    cb
-  ) => {
-    pixelData = new Uint32Array(NUM_LEDS)
+  const init = (body,cb) => {
     ws281x.init(NUM_LEDS)
-    console.log('Renderer Initialised')
+    ws281x.setBrightness(120)
+    rainbow = createRainbow(NUM_LEDS, 10)
+    map = createSurfaceMap()
+    isStopped = false
+    console.log('renderer initalized')
+
     cb
-  }*
-  init()*/
+  }
 
   const stop = cb => {
+    isStopped = true;
     ws281x.reset()
-    console.log('renderer stopped')
+    console.log('renderer isStopped')
     cb
   }
   
   const render = data => {
-      for (var i = 0; i < NUM_LEDS; i++) {
-        pixelData[i] = data[i] || 0;
-      }
-  
-      offset = (offset + 1) % 256;
-      ws281x.render(pixelData);
+      pixelData = data.split(',')
   }
 
-  setInterval(function () {
-    ws281x.render(pixelData);
-  }, 1000 / 30);
+  setInterval(() => {
+    if(!isStopped){
+      const initData = rainbow.update()
+      
+      /*if(initData){
+       pixelData = initData
+      }*/
+
+      ws281x.render(map.apply(pixelData));
+    }
+  }, 1000 / 15);
+
+  init()
 
   return {
-    //init,
+    init,
     render,
     stop
   }

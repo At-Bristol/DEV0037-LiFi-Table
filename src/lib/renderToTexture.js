@@ -3,24 +3,26 @@ import vertexShader from '../shaders/basicVertexShader.vs';
 
 const renderToTexture = ({
   uniforms={},  
-  fragmentShader = {},
-  width = 300,  
-  height = 300,
+  fragmentShader={},
+  uRes = 300,  
+  vRes = 300,
   params = {
-    minFilter:THREE.LinearFilter,
+    magFilter:THREE.NearestFilter,
+    minFilter:THREE.NearestFilter,
     stencilBuffer:false,
     depthBuffer:false
+    
   }  
 }) => {
-  if(!fragmentShader) throw new Error('fragShader property must be defined');
+  if(!fragmentShader) throw new Error('fragmentShader property must be defined');
 
-  const texture = new THREE.WebGLRenderTarget(width, height, params)
+  const texture = new THREE.WebGLRenderTarget(uRes, vRes, params)
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera( 
-    width / - 2,
-    width / 2,
-    height / 2,
-    height / - 2, 
+    uRes / - 2,
+    uRes / 2,
+    vRes / 2,
+    vRes / - 2, 
     -10000, 
     10000
   )
@@ -31,7 +33,7 @@ const renderToTexture = ({
     transparent: false,
   });
 
-  const geo  = new THREE.PlaneBufferGeometry(width, height);
+  const geo  = new THREE.PlaneBufferGeometry(uRes, vRes);
   const mesh = new THREE.Mesh(geo, material);
   scene.add(mesh)
   
