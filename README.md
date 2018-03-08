@@ -79,6 +79,6 @@ Now the server will be avaliable and will start with server reboot
 
 It may be usful to run the table server as a wireless access point so you can connect to it
 
-We followed [this guide to set it up]https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md
+We followed (this guide to set it up)[https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md]
 
 

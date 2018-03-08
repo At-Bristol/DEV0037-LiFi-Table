@@ -12,8 +12,8 @@ process.on('SIGINT', () => {
   process.nextTick(() => process.exit())
 })
 
-process.on('uncaughtException', () => {
-  console.log('Closing due to uncaught exception')
+process.on('uncaughtException', (err) => {
+  console.log('Closing due to uncaught exception', err)
   ws281x.reset();
   process.nextTick(() => process.exit())
 })

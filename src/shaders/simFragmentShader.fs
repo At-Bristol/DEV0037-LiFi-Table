@@ -13,10 +13,10 @@ uniform float u_time;
 uniform float u_isConnected;
 uniform float u_speed;
 uniform vec3 u_color1Start;
-uniform vec3 u_color1End;
+uniform float u_color1Variation;
 uniform float u_color1Speed;
 uniform vec3 u_color2Start;
-uniform vec3 u_color2End;
+uniform float u_color2Variation;
 uniform float u_color2Speed;
 uniform sampler2D u_tex;
 
@@ -51,27 +51,17 @@ vec3 hsv2rgb(vec3 c){
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-float posSin(float x){
-    return (sin(x)+1.0) / 2.0;
-}
 
-float oscillate(float c1, float c2,float time){
-    float low = min(c1,c2);
-    float high = max(c1,c2);
-    return (posSin(time)/(high-low)) + low;
+float oscillate(float c1, float variation, float time){
+    float offset = sin(time)*variation;
+    return offset + c1;
 }
 
 
-vec3 cycleBetweenColors(vec3 c1, vec3 c2, float time){
+vec3 cycleBetweenColors(vec3 c1, float variation, float time){
     vec3 c1Hsv = rgb2hsv(c1);
-    vec3 c2Hsv = rgb2hsv(c2);
-
-    float hueCycle = oscillate(c1Hsv.r, c2Hsv.r, time);
-    float satCycle = oscillate(c1Hsv.g, c2Hsv.g, time);
-    float valCycle = oscillate(c1Hsv.b, c2Hsv.b, time);
-
-    vec3 outputColor = hsv2rgb(vec3(hueCycle/2.0, 1.0 , 1.0));
-    
+    float hueCycle = oscillate(c1Hsv.r, variation, time);
+    vec3 outputColor = hsv2rgb(vec3(hueCycle, 1.0 , 1.0));
     return outputColor;
 }
 
@@ -106,15 +96,15 @@ void main() {
     float rows =  random(ipos2);
     float irows = 1.0 - rows;
 
-    float rowsMask = floor(rows * 2.0);
+    float rowsMask = rows;
     float iRowsMask = invert(rowsMask);
     
     //color.r = (sin(0.6 * u_time + rows)*0.5);
     //color.b = 0.0;
     //color.g = (sin(u_time * rows)*2.0)*0.5;
 
-    vec3 color = cycleBetweenColors(u_color1Start, u_color1End, (u_time * u_color1Speed/50.0 + 0.2));
-    vec3 iColor = cycleBetweenColors(u_color2Start, u_color2End, (u_time * u_color2Speed/50.0));
+    vec3 color = cycleBetweenColors(u_color1Start, u_color1Variation, (u_time * u_color1Speed/50.0 + 0.5));
+    vec3 iColor = cycleBetweenColors(u_color2Start, u_color2Variation, (u_time * u_color2Speed/50.0));
 
     //iColor.r = (sin(0.6 * u_time + rows)*0.5); 
     //iColor.b = (sin(u_time * rows)*2.0)*0.5;

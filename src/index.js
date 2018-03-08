@@ -78,11 +78,12 @@ const main = (props) => {
     inputTexture.uniforms.u_speed.value = state.speed
     inputTexture.uniforms.u_reverse.value = state.reverse ? 1 : -1
     inputTexture.uniforms.u_color1Start.value = array2Color(state.color1Start)
-    inputTexture.uniforms.u_color1End.value = array2Color(state.color1End)
+    inputTexture.uniforms.u_color1Variation.value = state.color1Variation
     inputTexture.uniforms.u_color1Speed.value = state.color1Speed;
     inputTexture.uniforms.u_color2Start.value = array2Color(state.color2Start)
-    inputTexture.uniforms.u_color2End.value = array2Color(state.color2End)
+    inputTexture.uniforms.u_color2Variation.value = state.color2Variation
     inputTexture.uniforms.u_color2Speed.value = state.color2Speed
+
     //render
     renderer.render(
       inputTexture.scene, 

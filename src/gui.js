@@ -21,7 +21,6 @@ const updateParams = () => {
 
 store.subscribe(updateParams)
 
-
 const gui = new dat.GUI();
 const conn = gui.addFolder('Connections')
 conn.add(params, 'isLifiConnected').listen()
@@ -33,11 +32,11 @@ s.add(params, 'speed',0,100)
 s.add(params, 'reverse')
 const c1 = gui.addFolder('Color One')
 c1.addColor(params, 'color1Start')
-c1.addColor(params, 'color1End')
+c1.add(params, 'color1Variation',0,1)
 c1.add(params, 'color1Speed',0,100)
 const c2 = gui.addFolder('Color Two')
 c2.addColor(params, 'color2Start')
-c2.addColor(params, 'color2End')
+c2.add(params, 'color2Variation',0,1)
 c2.add(params, 'color2Speed',0, 100)
 const ctl = gui.addFolder('Control') 
 ctl.add(params, 'uRes')
