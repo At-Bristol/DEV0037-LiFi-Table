@@ -15,7 +15,7 @@ import createGui from './gui'
 import tableModel from './models/table.json'
 import foyerEnv from './env/foyer/foyer.js'
 import config from './config'
-
+import handleResize from './lib/handleResize'
 
 if(process.env.NODE_ENV !== 'production'){
   console.log('Not running in production mode')
@@ -33,6 +33,8 @@ const main = (props) => {
 
   renderer.setSize(window.innerWidth, window.innerHeight)
   document.body.appendChild(renderer.domElement)
+  window.addEventListener('resize', handleResize(renderer))
+
 
   const defaultScene = createDefaultScene({domElement: renderer.domElement})
 
@@ -69,11 +71,17 @@ const main = (props) => {
   
   const render = () => {
 
+    handleResize(renderer)
+
     const state = store.getState()
+
+    inputTexture.update()
+
+    console.log(inputTexture.uniforms.u_scaleU)
 
     inputTexture.uniforms.u_isConnected.value = store.isConnected ? 1.0 : 1.0
     inputTexture.uniforms.u_time.value += clock.getDelta()
-    inputTexture.uniforms.u_scaleU.value = state.scaleU
+    //inputTexture.uniforms.u_scaleU.value = state.scaleU
     inputTexture.uniforms.u_scaleV.value = state.scaleV
     inputTexture.uniforms.u_speed.value = state.speed
     inputTexture.uniforms.u_reverse.value = state.reverse ? 1 : -1

@@ -11,8 +11,8 @@ const renderToTexture = ({
     minFilter:THREE.NearestFilter,
     stencilBuffer:false,
     depthBuffer:false
-    
-  }  
+  },
+  updateFn
 }) => {
   if(!fragmentShader) throw new Error('fragmentShader property must be defined');
 
@@ -36,12 +36,22 @@ const renderToTexture = ({
   const geo  = new THREE.PlaneBufferGeometry(uRes, vRes);
   const mesh = new THREE.Mesh(geo, material);
   scene.add(mesh)
+
+  const update = () => {
+    const state = updateFn(); 
+    Object.keys(uniforms).map(e => {
+      console.log(e)
+      const fieldName = uniforms[e].map
+      if(fieldName) material.uniforms[e].value = state[fieldName]
+    })
+  }
   
   return {
     camera,
     scene,
     texture,
-    uniforms
+    uniforms,
+    update
   }
 }
 
