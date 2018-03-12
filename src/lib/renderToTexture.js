@@ -40,9 +40,9 @@ const renderToTexture = ({
   const update = () => {
     const state = updateFn(); 
     Object.keys(uniforms).map(e => {
-      console.log(e)
+     // console.log(e)
       const fieldName = uniforms[e].map
-      if(fieldName) material.uniforms[e].value = state[fieldName]
+      //if(fieldName) texture.uniforms[e].value = state[fieldName]
     })
   }
   

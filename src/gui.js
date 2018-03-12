@@ -21,6 +21,7 @@ const updateParams = () => {
 
 store.subscribe(updateParams)
 
+
 const gui = new dat.GUI();
 const s = gui.addFolder('Render')
 s.add(params, 'scaleU',0,10)

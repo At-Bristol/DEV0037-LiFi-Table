@@ -17,6 +17,9 @@ import foyerEnv from './env/foyer/foyer.js'
 import config from './config'
 import handleResize from './lib/handleResize'
 
+import makeDeclaritiveGui from './declaritiveGui'
+
+
 if(process.env.NODE_ENV !== 'production'){
   console.log('Not running in production mode')
 }
@@ -24,6 +27,39 @@ if(process.env.NODE_ENV !== 'production'){
 const main = (props) => {
 
   const {tableWidth,tableLength, uRes, vRes, background,ledSize } = props
+
+  const params = {
+    'one': [
+      {
+        name: 'ScaleU',
+        type: 'float',
+        rangeIn: 0,
+        rangeOut: 100
+      },
+      {
+        name: 'ScaleV',
+        type: 'color',
+        rangeIn: 0,
+        rangeOut: 100
+      }
+    ],
+    'two':[
+      {
+        name: 'ScaleU2',
+        type: 'float',
+        rangeIn: 0,
+        rangeOut: 100
+      },
+      {
+        name: 'ScaleV2',
+        type: 'float',
+        rangeIn: 0,
+        rangeOut: 100
+      }
+    ]
+  }
+
+  makeDeclaritiveGui(params)
 
   const inputTexture = particleTexture
 
@@ -77,7 +113,7 @@ const main = (props) => {
 
     inputTexture.update()
 
-    console.log(inputTexture.uniforms.u_scaleU)
+   // console.log(inputTexture.uniforms.u_scaleU)
 
     inputTexture.uniforms.u_isConnected.value = store.isConnected ? 1.0 : 1.0
     inputTexture.uniforms.u_time.value += clock.getDelta()
