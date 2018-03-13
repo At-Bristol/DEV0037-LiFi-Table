@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const renderer = require('./renderer')()
 const ws281x = require('rpi-ws281x-native');
 
+
 process.on('SIGINT', () => {
   console.log('Closing')
   ws281x.reset();

@@ -38,47 +38,14 @@ The client is compiled by webpack and put into /dist where the server actually s
 
 The table server is set up to run node.js 9 on a Raspberry pi 3 Model B running Raspbian Stretch Lite
 
-To set up on a new sd card run the following
-
-```bash
-  sudo apt-get update
-  sudo apt-get upgrade
-  curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-  sudo apt-get install -y nodejs
-  npm install -g pm2
-  sudo mkdir /var/www
-  sudo chown pi /var/www
-  sudo chmod 711 /var/www
-  pm2 startup
-```
-follow the instructions from pm2 startup
-
-Next on your development machine build the app by running
-
-`npm run build`
-
-Then copy /server, package.json, package-lock.json and /dist to /var/www on the server.
-
-On the server install 
+To set up on a new system you must first make sure you have ssh access to the Rasberry pi, then from project root run. NB this requires you have bash shell available
 
 ```
-  cd /var/www
-  npm install
-``` 
-
-Its now ready to run 
-
+  npm run setup
 ```
- sudo pm2 start /var/www/server/index.js
- sudo pm2 save 
-``` 
 
-Now the server will be avaliable and will start with server reboot
+This will attempt to install and configure the server and the LiFi drivers 
 
-## Raspberry Pi as access point
-
-It may be usful to run the table server as a wireless access point so you can connect to it
-
-We followed (this guide to set it up)[https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md]
+note: the raspberrypi must have internet access for this to work
 
 

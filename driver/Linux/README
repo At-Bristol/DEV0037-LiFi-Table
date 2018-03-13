@@ -1,0 +1,11 @@
+PURELIFI LINUX DRIVER FOR LIFI-X AND LIFI-XC
+--------------------------------------------
+INSTALLATION INSTRUCTIONS
+
+1. Open terminal in driver directory.
+
+2.  To compile driver, please type:
+    make all
+
+3.  To install driver, please type:
+    sudo make install
