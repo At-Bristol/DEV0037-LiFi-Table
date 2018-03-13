@@ -48,4 +48,6 @@ This will attempt to install and configure the server and the LiFi drivers
 
 note: the raspberrypi must have internet access for this to work
 
+## Known bugs
 
+If the lifi AP is plugged in on boot then the WiFI ap will not be created. This is because the LiFI AP bumps the WiFi to wlan1 
