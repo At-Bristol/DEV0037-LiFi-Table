@@ -5,6 +5,7 @@ const expressWs = require('express-ws')(app)
 const bodyParser = require('body-parser')
 const renderer = require('./renderer')()
 const ws281x = require('rpi-ws281x-native');
+const config = require('./config')
 
 
 process.on('SIGINT', () => {
@@ -57,7 +58,10 @@ app.get('/load', (req, res) => {
 })
 
 app.ws('/render', (ws, req) => {
-  ws.on('message', data => renderer.render(data) )
+  ws.on('message', data => {
+    renderer.render(data) 
+    if(config.debug) console.log('frame received')
+  })
 })
 
 app.listen(3000, () => console.log('Lifi table listening on port 3000'))

@@ -4,7 +4,7 @@ var NUM_LEDS = parseInt(process.argv[2], 10) || 5*8,
     pixelData = new Uint32Array(NUM_LEDS);
 
 ws281x.reset();
-ws281x.init(NUM_LEDS);
+ws281x.init(NUM_LEDS, {dmaNum: 10});
 
 
 // ---- trap the SIGINT and reset before exit

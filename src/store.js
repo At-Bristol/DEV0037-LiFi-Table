@@ -12,7 +12,7 @@ const createStore = (middleware = []) => {
     uRes: config.uRes,
     vRes: config.vRes,
     scaleU: 1,
-    scaleV: 1,
+    scaleV: 2.5,
     color1Start: config.defaults.color1Start || [0,0,255],
     color1Variation: config.defaults.color1Variation || 0.17,
     color1Speed: config.defaults.color1speed || 5,
@@ -22,8 +22,8 @@ const createStore = (middleware = []) => {
     color2Speed: config.defaults.color2speed || 2,
     color2Direction:true,
     reverse: config.defaults.reverse|| false,
-    lifiServer: 'localhost:3001',
-    renderer: 'localhost:3000' 
+    renderer: config.renderer || 'localhost:3000',
+    frameRate: 15,
   }
 
   let subscribers = []

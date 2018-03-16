@@ -11,19 +11,20 @@ const createTable = (props) => {
   const init = () => {
     const NUM_LEDS = 36 * 98
     ws = new WebSocket(`ws://${config.renderer}/render`);
-    //ws.onmessage = e => console.log(e.data)
+    
+    ws.onmessage = e => console.log(e)
+    
     ws.onopen = e => {
-      //store.dispatch({isRendererConnected: true, msg:''})
       console.log('Connected to renderer')
     }
 
     ws.onclose = e =>  {
       console.warn('Connection to renderer closed, Attempting to restablish connection')
-      //store.dispatch({isRendererConnected: false})
-      reconnect()
+      //reconnect()
     }
 
     ws.onerror = e => {
+      console.error('Error : ' + e)
       return undefined
     }
   }
@@ -35,7 +36,7 @@ const createTable = (props) => {
     setTimeout(e => init(), 1000)
   }
 
-  const render = data => {
+  const render = data => { 
     if(ws && ws.readyState === 1){
       let holdingData = []
       let i
@@ -49,6 +50,7 @@ const createTable = (props) => {
       }
      
       ws.send(holdingData)
+      console.log('frame sent') 
     }
   }
 

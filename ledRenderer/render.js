@@ -3,7 +3,7 @@ var ws281x = require('rpi-ws281x-native');
 var NUM_LEDS = parseInt(process.argv[2], 10) || 5*8,
     pixelData = new Uint32Array(NUM_LEDS);
 
-ws281x.init(NUM_LEDS);
+ws281x.init(NUM_LEDS, {dmaNum: 10});
 
 // ---- trap the SIGINT and reset before exit
 process.on('SIGINT', function () {

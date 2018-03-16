@@ -17,12 +17,10 @@ const createRenderer = () => {
 
   let rainbow;
 
-  //var offset = 0;
-
   const init = (body,cb) => {
-    ws281x.init(NUM_LEDS)
+    ws281x.init(NUM_LEDS, {dmaNum: 10})
     ws281x.setBrightness(120)
-    rainbow = createRainbow(NUM_LEDS, 10)
+    //rainbow = createRainbow(NUM_LEDS, 10)
     map = createSurfaceMap()
     isStopped = false
     console.log('renderer initalized')
@@ -43,12 +41,7 @@ const createRenderer = () => {
 
   setInterval(() => {
     if(!isStopped){
-      const initData = rainbow.update()
-      
-      /*if(initData){
-       pixelData = initData
-      }*/
-
+      //const initData = rainbow.update()
       ws281x.render(map.apply(pixelData));
     }
   }, 1000 / 15);
