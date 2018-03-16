@@ -1,11 +1,12 @@
 const express = require('express')
 const app = express()
 const path = require('path')
-const expressWs = require('express-ws')(app)
+const http = require('http').Server(app);
+const io = require('socket.io')(http)
+
 const bodyParser = require('body-parser')
 const renderer = require('./renderer')()
-const ws281x = require('rpi-ws281x-native');
-
+const ws281x = require('rpi-ws281x-native')
 
 process.on('SIGINT', () => {
   console.log('Closing')
@@ -56,10 +57,17 @@ app.get('/load', (req, res) => {
   res.send(storage.read())
 })
 
-app.ws('/render', (ws, req) => {
-  ws.on('message', data => renderer.render(data) )
+const socket = io.on('connection', socket => {
+  console.log('client connected')
+
+  socket.on('render', frame => renderer.render(frame))
+
+  socket.on('error', err => console.log('error:', err))
+
+  socket.on('disconnect', reason => console.log('client disconnected for reason: ', reason));
+
 })
 
-app.listen(3000, () => console.log('Lifi table listening on port 3000'))
+http.listen(3000, () => console.log('Lifi table listening on port 3000'))
 
 

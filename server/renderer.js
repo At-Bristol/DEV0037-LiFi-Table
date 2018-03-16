@@ -38,19 +38,24 @@ const createRenderer = () => {
   }
   
   const render = data => {
-      pixelData = data.split(',')
+      pixelData = data
   }
 
-  setInterval(() => {
-    if(!isStopped){
-      const initData = rainbow.update()
-      
-      /*if(initData){
-       pixelData = initData
-      }*/
+  var i = 0, prevData = ''
 
+  setInterval(() => {
+    if(pixelData[0] === prevData){
+      process.stdout.write('render frame '+ i +'\r')
+    }else{
+      process.stdout.write(`render frame ${i} updated\r`)
+    }
+
+    prevData = pixelData[0]
+
+    if(!isStopped){
       ws281x.render(map.apply(pixelData));
     }
+    i++
   }, 1000 / 15);
 
   init()

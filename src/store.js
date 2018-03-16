@@ -23,7 +23,8 @@ const createStore = (middleware = []) => {
     color2Direction:true,
     reverse: config.defaults.reverse|| false,
     lifiServer: 'localhost:3001',
-    renderer: 'localhost:3000' 
+    renderer: 'localhost:3000' ,
+    frameRate: config.frameRate || 15
   }
 
   let subscribers = []

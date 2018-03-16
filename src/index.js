@@ -110,7 +110,9 @@ const main = (props) => {
   };
   
   const loop = () => {
-    requestAnimationFrame(loop);
+    setTimeout(
+      () => requestAnimationFrame(loop)
+    , 1000 / store.getState().frameRate)  
     render();
   };
 

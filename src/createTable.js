@@ -1,8 +1,9 @@
-import { setInterval } from "timers";
+import io from 'socket.io-client'
 
 const createTable = (props) => {
   const {uRes, vRes} = props
-  let NUM_LEDS, pixelData, ws281x, ws;
+  let NUM_LEDS, pixelData, ws281x
+  const socket = io()
 
   const rgb2Int = (r, g, b) => (
     ((r & 0xff) << 16) + ((g & 0xff) << 8) + (b & 0xff)
@@ -10,46 +11,36 @@ const createTable = (props) => {
 
   const init = () => {
     const NUM_LEDS = 36 * 98
-    ws = new WebSocket(`ws://${config.renderer}/render`);
-    //ws.onmessage = e => console.log(e.data)
-    ws.onopen = e => {
-      //store.dispatch({isRendererConnected: true, msg:''})
-      console.log('Connected to renderer')
-    }
 
-    ws.onclose = e =>  {
-      console.warn('Connection to renderer closed, Attempting to restablish connection')
-      //store.dispatch({isRendererConnected: false})
-      reconnect()
-    }
+    socket.on('connect', connection => console.log('Server connected'))
 
-    ws.onerror = e => {
-      return undefined
-    }
+    socket.on('error', err => console.log('Socket Error:', err))
+
+    socket.on('connect_timeout', timeout => console.log('A connection timed out:' + timeout))
+
+    socket.on('reconnecting', attemptNumber => console.log('Attempting to reconnect for the ' + attemptNumber + ' time'));
+
+    socket.on('reconnect', attemptNumber => console.log('Successfully reconnected'))
+
+    socket.on('reconnect_error', err => console.log('Error reonnecting: ' + err))
+
+    socket.on('disconnect', reason => console.log('Disconnected because ' + reason))
   }
   init();
 
-  const reconnect = e => {
-    ws = null
-    //store.dispatch({msg: 'Attempting to connect to renderer'})
-    setTimeout(e => init(), 1000)
-  }
-
   const render = data => {
-    if(ws && ws.readyState === 1){
-      let holdingData = []
-      let i
-      for(i = 0; i < data.length/4; i++) {
-        let offset = i*4
-        holdingData[i] = rgb2Int(
-          data[offset],
-          data[offset + 1],
-          data[offset + 2],
-        )
-      }
-     
-      ws.send(holdingData)
+
+    let renderData = []
+    let i
+    for(i = 0; i < data.length/4; i++) {
+      let offset = i*4
+      renderData[i] = rgb2Int(
+        data[offset],
+        data[offset + 1],
+        data[offset + 2],
+      )
     }
+    socket.emit('render', renderData)
   }
 
   return {
